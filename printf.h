@@ -3,6 +3,7 @@
 
 /* prints a single char to stdout */
 #define r_putchar(c) write(1, chardup(c), 1)
+#define atoa(x) #x
 
 /*
  * creates a string from a char.

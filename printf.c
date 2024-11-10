@@ -1,6 +1,8 @@
 /* printf implementation */
 #include "printf.h"
-#include "x86args.h"
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 #define Wait4Char 1 // 00 01
@@ -51,11 +53,10 @@ ssize_t r_puts(const char *str) {
 }
 
 int r_printf(const char *fmt, ...) {
-  unsigned int *p;
   const char *f;
   State s;
-
-  Args(p);
+  va_list argp;
+  va_start(argp, fmt);
   s = Wait4Char;
   f = fmt;
 
@@ -74,18 +75,26 @@ int r_printf(const char *fmt, ...) {
         r_putchar(*f);
         s = Wait4Char;
         break;
+      case 's':
+        // printf("p: %s", (unsigned char *)*p);
+        r_puts(va_arg(argp, char *));
+        s = Wait4Char;
+        break;
+      case 'c':
+        r_putchar(va_arg(argp, int));
+        s = Wait4Char;
+        break;
       default:
         s = Wait4Char;
-        p++;
         break;
       }
     }
   } while (*(++f));
-
+  va_end(argp);
   return 0;
 }
 
 // int main(void) {
-//   r_printf("hello world\n");
+//   r_printf("hello world %s\n", "whats up?");
 //   return 0;
 // }

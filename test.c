@@ -24,6 +24,10 @@ MunitResult test_printf_without_fmt(const MunitParameter params[],
 MunitResult
 test_printf_without_fmt_double_percent(const MunitParameter params[],
                                        void *user_data_or_fixture);
+MunitResult test_printf_string(const MunitParameter params[],
+                               void *user_data_or_fixture);
+MunitResult test_printf_char(const MunitParameter params[],
+                             void *user_data_or_fixture);
 MunitTest tests[] = {
     {
         "/test_chardup",              // name of test
@@ -79,6 +83,22 @@ MunitTest tests[] = {
         NULL,                                      // setup
         NULL,                                      // teardown
         MUNIT_TEST_OPTION_NONE, NULL,              /* parameters */
+
+    },
+    {
+        "/test_printf_string",        // name of test
+        test_printf_string,           // test function
+        NULL,                         // setup
+        NULL,                         // teardown
+        MUNIT_TEST_OPTION_NONE, NULL, /* parameters */
+
+    },
+    {
+        "/test_printf_char",          // name of test
+        test_printf_char,             // test function
+        NULL,                         // setup
+        NULL,                         // teardown
+        MUNIT_TEST_OPTION_NONE, NULL, /* parameters */
 
     },
     {NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
@@ -242,6 +262,99 @@ test_printf_without_fmt_double_percent(const MunitParameter params[],
   fclose(stdout);
   char *output = read_from_file("redir.txt");
   munit_assert_string_equal("rijo % john\n", output);
+  // munit_assert_int(res, =, 0);
+  assert(res == 0);
+  return MUNIT_OK;
+}
+MunitResult test_printf_string(const MunitParameter params[],
+                               void *user_data_or_fixture) {
+  (void)params;
+  (void)user_data_or_fixture;
+  struct stat st;
+
+  /* with single string */
+
+  // redirect stdout
+  freopen("redir.txt", "w", stdout);
+  int res = r_printf("rijojohn %s\n", "is the best.");
+  // assert checking
+  stat("redir.txt", &st);
+  fclose(stdout);
+  char *output = read_from_file("redir.txt");
+  munit_assert_string_equal("rijojohn is the best.\n", output);
+  // munit_assert_int(res, =, 0);
+  assert(res == 0);
+
+  /* with multiple string */
+  freopen("redir.txt", "w", stdout);
+  res = r_printf("%s rijo %s john %s\n", "hello!", "the best", "is the best.");
+  // assert checking
+  stat("redir.txt", &st);
+  fclose(stdout);
+
+  output = read_from_file("redir.txt");
+
+  munit_assert_string_equal("hello! rijo the best john is the best.\n", output);
+  // munit_assert_int(res, =, 0);
+  assert(res == 0);
+
+  /* with string var */
+  char *str = "the best";
+  freopen("redir.txt", "w", stdout);
+  res = r_printf("%s rijo %s john %s\n", "hello!", str, "is the best.");
+  // assert checking
+  stat("redir.txt", &st);
+  fclose(stdout);
+
+  output = read_from_file("redir.txt");
+
+  munit_assert_string_equal("hello! rijo the best john is the best.\n", output);
+  // munit_assert_int(res, =, 0);
+  assert(res == 0);
+  return MUNIT_OK;
+}
+MunitResult test_printf_char(const MunitParameter params[],
+                             void *user_data_or_fixture) {
+  (void)params;
+  (void)user_data_or_fixture;
+  struct stat st;
+
+  /* with single string */
+
+  // redirect stdout
+  freopen("redir.txt", "w", stdout);
+  int res = r_printf("rijojohn %c\n", 'u');
+  // assert checking
+  stat("redir.txt", &st);
+  fclose(stdout);
+  char *output = read_from_file("redir.txt");
+  munit_assert_string_equal("rijojohn u\n", output);
+  // munit_assert_int(res, =, 0);
+  assert(res == 0);
+
+  /* with multiple string */
+  freopen("redir.txt", "w", stdout);
+  res = r_printf("%c rijo %c john %c\n", 'a', 'b', 'c');
+  // assert checking
+  stat("redir.txt", &st);
+  fclose(stdout);
+
+  output = read_from_file("redir.txt");
+
+  munit_assert_string_equal("a rijo b john c\n", output);
+  // munit_assert_int(res, =, 0);
+  assert(res == 0);
+  /* with var */
+  char c = 'a';
+  freopen("redir.txt", "w", stdout);
+  // assert checking
+  res = r_printf("%c rijo %c john %c\n", c, c, c);
+  stat("redir.txt", &st);
+  fclose(stdout);
+
+  output = read_from_file("redir.txt");
+
+  munit_assert_string_equal("a rijo a john a\n", output);
   // munit_assert_int(res, =, 0);
   assert(res == 0);
   return MUNIT_OK;
