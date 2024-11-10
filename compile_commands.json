@@ -1,0 +1,11 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "printf.c"
+    ],
+    "directory": "/home/rijojohn/dev/C/printf",
+    "file": "/home/rijojohn/dev/C/printf/printf.c"
+  }
+]
