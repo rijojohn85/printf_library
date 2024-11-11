@@ -3,7 +3,7 @@ ALL=printf
 all: ${ALL}
 
 clean:
-	rm -f ${ALL} *.o
+	rm -f bin/${ALL} *.o
 
 #printf
 printf.o: printf.c

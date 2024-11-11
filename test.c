@@ -28,6 +28,12 @@ MunitResult test_printf_string(const MunitParameter params[],
                                void *user_data_or_fixture);
 MunitResult test_printf_char(const MunitParameter params[],
                              void *user_data_or_fixture);
+MunitResult test_printf_int(const MunitParameter params[],
+                            void *user_data_or_fixture);
+MunitResult test_itoa(const MunitParameter params[],
+                      void *user_data_or_fixture);
+MunitResult test_escape(const MunitParameter params[],
+                        void *user_data_or_fixture);
 MunitTest tests[] = {
     {
         "/test_chardup",              // name of test
@@ -99,8 +105,28 @@ MunitTest tests[] = {
         NULL,                         // setup
         NULL,                         // teardown
         MUNIT_TEST_OPTION_NONE, NULL, /* parameters */
-
     },
+    {
+        "/test_printf_int",           // name of test
+        test_printf_int,              // test function
+        NULL,                         // setup
+        NULL,                         // teardown
+        MUNIT_TEST_OPTION_NONE, NULL, /* parameters */
+    },
+    {
+        "/test_itoa",                 // name of test
+        test_itoa,                    // test function
+        NULL,                         // setup
+        NULL,                         // teardown
+        MUNIT_TEST_OPTION_NONE, NULL, /* parameters */
+    },
+    // {
+    //     "/test_escape",               // name of test
+    //     test_escape,                  // test function
+    //     NULL,                         // setup
+    //     NULL,                         // teardown
+    //     MUNIT_TEST_OPTION_NONE, NULL, /* parameters */
+    // },
     {NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL},
 };
 
@@ -355,6 +381,117 @@ MunitResult test_printf_char(const MunitParameter params[],
   output = read_from_file("redir.txt");
 
   munit_assert_string_equal("a rijo a john a\n", output);
+  // munit_assert_int(res, =, 0);
+  assert(res == 0);
+  return MUNIT_OK;
+}
+MunitResult test_itoa(const MunitParameter params[],
+                      void *user_data_or_fixture) {
+  (void)params;
+  (void)user_data_or_fixture;
+  char *output = r_itoa(2345);
+  // printf("%s", output++);
+  munit_assert_string_equal(output, "2345");
+  output = r_itoa(-2345);
+  // printf("%s", output++);
+  munit_assert_string_equal(output, "-2345");
+  output = r_itoa(0);
+  // printf("%s", output++);
+  munit_assert_string_equal(output, "0");
+  return MUNIT_OK;
+}
+MunitResult test_escape(const MunitParameter params[],
+                        void *user_data_or_fixture) {
+  (void)params;
+  (void)user_data_or_fixture;
+  struct stat st;
+
+  /* with single string */
+
+  // redirect stdout
+  freopen("redir.txt", "w", stdout);
+  int res = r_printf("rijojohn \%d\n", 2345);
+  // assert checking
+  stat("redir.txt", &st);
+  fclose(stdout);
+  char *output = read_from_file("redir.txt");
+  munit_assert_string_equal("rijojohn %d\n", output);
+  // munit_assert_int(res, =, 0);
+  assert(res == 0);
+
+  /* with multiple string */
+  freopen("redir.txt", "w", stdout);
+  res = r_printf("%s rijo %d john \%c\n", "hello!", -2345, 'c');
+  // assert checking
+  stat("redir.txt", &st);
+  fclose(stdout);
+
+  output = read_from_file("redir.txt");
+
+  munit_assert_string_equal("hello! rijo -2345 john %c\n", output);
+  // munit_assert_int(res, =, 0);
+  assert(res == 0);
+  /* with var */
+  int c = 123;
+  int b = 0;
+  int a = -123;
+  freopen("redir.txt", "w", stdout);
+  // assert checking
+  res = r_printf("%d rijo %d john %%d\n", c, b, a);
+  stat("redir.txt", &st);
+  fclose(stdout);
+
+  output = read_from_file("redir.txt");
+
+  munit_assert_string_equal("123 rijo 0 john %d\n", output);
+  // munit_assert_int(res, =, 0);
+  assert(res == 0);
+  return MUNIT_OK;
+}
+MunitResult test_printf_int(const MunitParameter params[],
+                            void *user_data_or_fixture) {
+  (void)params;
+  (void)user_data_or_fixture;
+  struct stat st;
+
+  /* with single string */
+
+  // redirect stdout
+  freopen("redir.txt", "w", stdout);
+  int res = r_printf("rijojohn %d\n", 2345);
+  // assert checking
+  stat("redir.txt", &st);
+  fclose(stdout);
+  char *output = read_from_file("redir.txt");
+  munit_assert_string_equal("rijojohn 2345\n", output);
+  // munit_assert_int(res, =, 0);
+  assert(res == 0);
+
+  /* with multiple string */
+  freopen("redir.txt", "w", stdout);
+  res = r_printf("%s rijo %d john %c\n", "hello!", -2345, 'c');
+  // assert checking
+  stat("redir.txt", &st);
+  fclose(stdout);
+
+  output = read_from_file("redir.txt");
+
+  munit_assert_string_equal("hello! rijo -2345 john c\n", output);
+  // munit_assert_int(res, =, 0);
+  assert(res == 0);
+  /* with var */
+  int c = 123;
+  int b = 0;
+  int a = -123;
+  freopen("redir.txt", "w", stdout);
+  // assert checking
+  res = r_printf("%d rijo %d john %d\n", c, b, a);
+  stat("redir.txt", &st);
+  fclose(stdout);
+
+  output = read_from_file("redir.txt");
+
+  munit_assert_string_equal("123 rijo 0 john -123\n", output);
   // munit_assert_int(res, =, 0);
   assert(res == 0);
   return MUNIT_OK;

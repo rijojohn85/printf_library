@@ -23,3 +23,6 @@ ssize_t r_puts(const char *str);
 
 /*printf function - */
 int r_printf(const char *fmt, ...);
+
+/* returns a string of the number */
+char *r_itoa(int num);
